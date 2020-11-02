@@ -74,9 +74,9 @@ class GCNConv(tf.keras.layers.Layer):
         output = None
         if not hasattr(self, 'Sk'):
             self.Sk = [tf.sparse.from_dense(tf.eye(self.An.shape[0])), self.An]
-            for k in range(2,self.K):
-                self.Sk.append(spdot(self.Sk[-1] , self.An))
-            
+            for k in range(2,self.K+1):
+                self.Sk.append(tf.sparse.from_dense(spdot(self.Sk[-1] , tf.sparse.to_dense(self.An))))
+                
         for k in range(self.K):
             if isinstance(self.X, tf.SparseTensor):
                 h = spdot(self.X, self.H[k])
