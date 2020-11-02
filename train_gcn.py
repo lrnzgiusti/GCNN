@@ -13,6 +13,7 @@ from models.utils import preprocess_graph, load_data, load_data_planetoid, smoot
 import numpy as np
 import matplotlib.pyplot as plt
 import os
+import sys
 import warnings
 
 
@@ -35,12 +36,13 @@ del_all_flags(flags.FLAGS)
 
 # let hyperpaprameters to be accessible in multiple modules
 FLAGS = flags.FLAGS
-flags.DEFINE_string('dataset', 'citeseer', 'Dataset string.')
+FLAGS(sys.argv)
+flags.DEFINE_string('dataset', 'cora', 'Dataset string.')
 flags.DEFINE_integer('hidden1', 32, 'Number of units in hidden layer 1.')
 flags.DEFINE_integer('epochs', 300, 'Number of epochs to train.')
 flags.DEFINE_integer('early_stopping', 20, 'Tolerance for early stopping (# of epochs).')
 flags.DEFINE_float('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
-flags.DEFINE_float('learning_rate', 0.0005, 'Initial learning rate.')
+flags.DEFINE_float('learning_rate', 0.005, 'Initial learning rate.')
 flags.DEFINE_float('dropout', 0.5, 'Dropout rate (1 - keep probability).')
 flags.DEFINE_bool('verbose', True, 'Toogle the verbose.')
 flags.DEFINE_bool('logging', False, 'Toggle the logging.')
