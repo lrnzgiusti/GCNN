@@ -3,6 +3,7 @@ from models.base import Base
 from models.layers import GCNConv
 from models.utils import sp_matrix_to_sp_tensor, sparse_dropout
 from sklearn.metrics import accuracy_score
+from tensorflow.keras.regularizers import l2
 from time import time
 import numpy as np
 import tensorflow as tf
@@ -35,8 +36,17 @@ class GCN(Base):
         self.An_tf = sp_matrix_to_sp_tensor(self.An)
         self.X_tf = sp_matrix_to_sp_tensor(self.X)
 
-        self.layer1 = GCNConv(self.layer_sizes[0], activation='relu')
-        self.layer2 = GCNConv(self.layer_sizes[1])
+        self.layer1 = GCNConv(self.layer_sizes[0],
+                              #K=3, 
+                              activation='relu', 
+                              kernel_regularizer=l2(0.001),
+                              bias_regularizer=l2(0.001))
+        
+        self.layer2 = GCNConv(self.layer_sizes[1],
+                              #K=3,
+                              learn_graph=True,
+                              kernel_regularizer=l2(0.001),
+                              bias_regularizer=l2(0.001))
         self.opt = tf.optimizers.Adam(learning_rate=self.lr)
 
     def train(self, idx_train, labels_train, idx_val, labels_val):
@@ -104,6 +114,7 @@ class GCN(Base):
 
         self.h2 = self.layer2([self.An_tf, _h1])
         self.var_list = self.layer1.weights + self.layer2.weights
+        print(self.layer2.weights[1])
         # calculate the loss base on idx and labels
         _logits = tf.gather(self.h2, idx)
         _loss_per_node = tf.nn.softmax_cross_entropy_with_logits(labels=labels,
