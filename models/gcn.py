@@ -44,6 +44,7 @@ class GCN(Base):
         
         self.layer2 = GCNConv(self.layer_sizes[1],
                               #K=3,
+                              activation='relu',
                               learn_graph=True,
                               kernel_regularizer=l2(0.001),
                               bias_regularizer=l2(0.001))
@@ -67,6 +68,7 @@ class GCN(Base):
 
             # optimize over weights
             grad_list = tape.gradient(_loss, self.var_list)
+            print(grad_list[3])
             grads_and_vars = zip(grad_list, self.var_list)
             self.opt.apply_gradients(grads_and_vars)
 
@@ -114,7 +116,6 @@ class GCN(Base):
 
         self.h2 = self.layer2([self.An_tf, _h1])
         self.var_list = self.layer1.weights + self.layer2.weights
-        print(self.layer2.weights[1])
         # calculate the loss base on idx and labels
         _logits = tf.gather(self.h2, idx)
         _loss_per_node = tf.nn.softmax_cross_entropy_with_logits(labels=labels,

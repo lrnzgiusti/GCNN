@@ -143,11 +143,10 @@ class GCNConv(tf.keras.layers.Layer):
                 #S should be initialized as the adjacency matrix + self loops not as weight matrix
                 self.S = self.add_weight(name="S",
                                           shape=input_shape[0],
-                                          initializer=self.kernel_initializer,
+                                          initializer=tf.keras.initializers.he_normal(),
                                           constraint=self.kernel_constraint,
                                           trainable=True)
                 
-                #self.S = tf.sparse.from_dense(self.S)
         if self.use_bias:
             if not hasattr(self, 'bias'):
                 self.bias = self.add_weight(name="bias",
@@ -160,9 +159,8 @@ class GCNConv(tf.keras.layers.Layer):
     def call(self, inputs):
         """ GCN has two inputs : [An, X]
         """
-        self.An = inputs[0] if not self.learn_graph else tf.sparse.from_dense(self.S) #self.S
+        self.An = inputs[0] if not self.learn_graph else tf.sparse.from_dense(self.S) # self.S
         self.X = inputs[1]
-        
 
         if isinstance(self.X, tf.SparseTensor):
             h = spdot(self.X, self.weight)

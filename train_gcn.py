@@ -2,7 +2,6 @@
 # TF 2.0 implementation of GCN.
 # This version doesn't use the the Keras Model API
 #
-# Copyright (c) Nov. 2019, H. Jin
 ###############################################################################
 
 from absl import app
