@@ -1,5 +1,7 @@
 import tensorflow as tf
 from tensorflow.keras import activations, regularizers, constraints, initializers
+from models.constraints import LaplacianConstraint
+from models.initializers import LaplacianInizializer
 spdot = tf.sparse.sparse_dense_matmul
 dot = tf.matmul
 
@@ -100,6 +102,7 @@ class GCNConv(tf.keras.layers.Layer):
 
     def __init__(self,
                  units,
+                 An = None,#just a test RM after
                  activation=lambda x: x,
                  use_bias=True,
                  learn_graph=False,
@@ -113,6 +116,7 @@ class GCNConv(tf.keras.layers.Layer):
                  **kwargs):
 
         self.units = units
+        self.ADJ = tf.sparse.to_dense(An) if An is not None else None
         self.activation = activations.get(activation)
         self.use_bias = use_bias
         self.learn_graph = learn_graph
@@ -143,8 +147,8 @@ class GCNConv(tf.keras.layers.Layer):
                 #S should be initialized as the adjacency matrix + self loops not as weight matrix
                 self.S = self.add_weight(name="S",
                                           shape=input_shape[0],
-                                          initializer=tf.keras.initializers.he_normal(),
-                                          constraint=self.kernel_constraint,
+                                          initializer=LaplacianInizializer(self.ADJ),
+                                          constraint=LaplacianConstraint(alpha=1e-10),
                                           trainable=True)
                 
         if self.use_bias:
@@ -162,6 +166,7 @@ class GCNConv(tf.keras.layers.Layer):
         self.An = inputs[0] if not self.learn_graph else tf.sparse.from_dense(self.S) # self.S
         self.X = inputs[1]
 
+            
         if isinstance(self.X, tf.SparseTensor):
             h = spdot(self.X, self.weight)
         else:

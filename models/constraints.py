@@ -5,18 +5,20 @@ Created on Tue Nov  3 20:55:04 2020
 
 @author: ince
 """
+from tensorflow.python.ops import math_ops
+from tensorflow.python.keras import backend as K
 import tensorflow as tf
 
+class LaplacianConstraint(tf.keras.constraints.Constraint):
 
-class CenterAround(tf.keras.constraints.Constraint):
-  """Constrains weight tensors to be centered around `ref_value`."""
-
-  def __init__(self, ref_value):
-    self.ref_value = ref_value
+  def __init__(self, alpha):
+      self.alpha = alpha
 
   def __call__(self, w):
-    mean = tf.reduce_mean(w)
-    return w - mean + self.ref_value
-
-  def get_config(self):
-    return {'ref_value': self.ref_value}
+    trace = tf.linalg.trace(w)
+    return w * (
+              math_ops.cast(math_ops.greater_equal(trace, 1.), K.floatx()) 
+             * math_ops.cast(math_ops.less_equal(w - tf.linalg.diag_part(w), 0), K.floatx()) 
+            )  + self.alpha * tf.norm(w, 1) 
+            
+            

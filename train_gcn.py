@@ -40,7 +40,7 @@ FLAGS = flags.FLAGS
 FLAGS(sys.argv)
 flags.DEFINE_string('dataset', 'cora', 'Dataset string.')
 flags.DEFINE_integer('hidden1', 6, 'Number of units in hidden layer 1.')
-flags.DEFINE_integer('epochs', 100, 'Number of epochs to train.')
+flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
 flags.DEFINE_integer('early_stopping', 20, 'Tolerance for early stopping (# of epochs).')
 flags.DEFINE_float('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
 flags.DEFINE_float('learning_rate', 0.005, 'Initial learning rate.')

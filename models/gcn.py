@@ -38,16 +38,12 @@ class GCN(Base):
 
         self.layer1 = GCNConv(self.layer_sizes[0],
                               #K=3, 
-                              activation='relu', 
-                              kernel_regularizer=l2(0.001),
-                              bias_regularizer=l2(0.001))
+                              activation='relu')
         
         self.layer2 = GCNConv(self.layer_sizes[1],
-                              #K=3,
-                              activation='relu',
-                              learn_graph=True,
-                              kernel_regularizer=l2(0.001),
-                              bias_regularizer=l2(0.001))
+                              An=self.An_tf,
+                              #activation='relu',
+                              learn_graph=True)
         self.opt = tf.optimizers.Adam(learning_rate=self.lr)
 
     def train(self, idx_train, labels_train, idx_val, labels_val):
@@ -68,7 +64,7 @@ class GCN(Base):
 
             # optimize over weights
             grad_list = tape.gradient(_loss, self.var_list)
-            print(grad_list[3])
+            print(grad_list[3]) # Gli ultimi gradienti sono tutti uguali a zero
             grads_and_vars = zip(grad_list, self.var_list)
             self.opt.apply_gradients(grads_and_vars)
 
