@@ -42,7 +42,7 @@ class GCN(Base):
         
         self.layer2 = GCNConv(self.layer_sizes[1],
                               An=self.An_tf,
-                              #activation='relu',
+                              activation='softmax',
                               learn_graph=True)
         self.opt = tf.optimizers.Adam(learning_rate=self.lr)
 
@@ -64,7 +64,12 @@ class GCN(Base):
 
             # optimize over weights
             grad_list = tape.gradient(_loss, self.var_list)
-            print(grad_list[3]) # Gli ultimi gradienti sono tutti uguali a zero
+            if False:
+                with open('grads.txt', 'w') as file:
+                    for l in grad_list[3]:
+                        file.write(str(sum(l.numpy())))
+                        file.write("\n")# Gli ultimi gradienti sono tutti uguali a zero
+                    
             grads_and_vars = zip(grad_list, self.var_list)
             self.opt.apply_gradients(grads_and_vars)
 
@@ -114,13 +119,12 @@ class GCN(Base):
         self.var_list = self.layer1.weights + self.layer2.weights
         # calculate the loss base on idx and labels
         _logits = tf.gather(self.h2, idx)
-        _loss_per_node = tf.nn.softmax_cross_entropy_with_logits(labels=labels,
-                                                                 logits=_logits)
+        _loss_per_node = tf.losses.categorical_crossentropy(labels, _logits, from_logits=True) #tf.nn.softmax_cross_entropy_with_logits(labels=labels, logits=_logits)
         _loss = tf.reduce_mean(_loss_per_node)
         # the weight_dacay only applys to the first layer.
         #         Same as the original implementation of GCN.
         # _loss += FLAGS.weight_decay * sum(map(tf.nn.l2_loss, self.var_list))
-        _loss += FLAGS.weight_decay * sum(map(tf.nn.l2_loss, self.layer1.weights))
+        #_loss += FLAGS.weight_decay * sum(map(tf.nn.l2_loss, self.layer1.weights))
         return _loss
 
     def evaluate(self, idx, true_labels, training):

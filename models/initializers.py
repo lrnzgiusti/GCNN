@@ -15,7 +15,7 @@ class LaplacianInizializer(tf.keras.initializers.Initializer):
         self.L = L
         
     def __call__(self, shape, dtype=None):
-        return self.L + tf.random.normal(self.L.shape, mean=0, stddev=10, dtype=dtype)
+        return self.L
     
     def get_config(self):  # To support serialization
         return {'L': self.L} 

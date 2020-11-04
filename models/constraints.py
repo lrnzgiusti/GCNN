@@ -19,6 +19,6 @@ class LaplacianConstraint(tf.keras.constraints.Constraint):
     return w * (
               math_ops.cast(math_ops.greater_equal(trace, 1.), K.floatx()) 
              * math_ops.cast(math_ops.less_equal(w - tf.linalg.diag_part(w), 0), K.floatx()) 
-            )  + self.alpha * tf.norm(w, 1) 
+            )  #+ self.alpha * tf.norm(w, 1) 
             
             

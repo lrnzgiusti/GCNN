@@ -11,10 +11,11 @@ from models.gcn import GCN
 from models.utils import preprocess_graph, load_data, load_data_planetoid, smooth_plot, del_all_flags
 import numpy as np
 import matplotlib.pyplot as plt
+plt.style.use("ggplot")
 import os
 import sys
 import warnings
-
+import pickle
 
 
 
@@ -39,12 +40,12 @@ del_all_flags(flags.FLAGS)
 FLAGS = flags.FLAGS
 FLAGS(sys.argv)
 flags.DEFINE_string('dataset', 'cora', 'Dataset string.')
-flags.DEFINE_integer('hidden1', 6, 'Number of units in hidden layer 1.')
-flags.DEFINE_integer('epochs', 200, 'Number of epochs to train.')
+flags.DEFINE_integer('hidden1', 32, 'Number of units in hidden layer 1.')
+flags.DEFINE_integer('epochs', 300, 'Number of epochs to train.')
 flags.DEFINE_integer('early_stopping', 20, 'Tolerance for early stopping (# of epochs).')
-flags.DEFINE_float('weight_decay', 5e-4, 'Weight for L2 loss on embedding matrix.')
-flags.DEFINE_float('learning_rate', 0.005, 'Initial learning rate.')
-flags.DEFINE_float('dropout', 0.5, 'Dropout rate (1 - keep probability).')
+flags.DEFINE_float('weight_decay', 1, 'Weight for L2 loss on embedding matrix.')
+flags.DEFINE_float('learning_rate', 0.0005, 'Initial learning rate.')
+flags.DEFINE_float('dropout', 0.3, 'Dropout rate (1 - keep probability).')
 flags.DEFINE_bool('verbose', True, 'Toogle the verbose.')
 flags.DEFINE_bool('logging', False, 'Toggle the logging.')
 flags.DEFINE_integer('gpu_id', None, 'Specify the GPU id')
@@ -75,21 +76,31 @@ with tf.device(device_id):
     train_accuracies = train_stats[2]
     val_accuracies = train_stats[3]
     
+    with open("learned_lapl.pkl", "rb") as pkl:
+        lrnd = pickle.load(pkl)  
+        
+    with open("fixed_lapl.pkl", "rb") as pkl:
+        fxd = pickle.load(pkl) 
+        
     plt.figure()
-    smooth_plot(train_losses, label='Train Loss')
-    smooth_plot(val_losses,  label='Val Loss')
+    smooth_plot(fxd['train_losses'], label='Fixed Train Loss')
+    smooth_plot(lrnd['train_losses'], label='Learned Train Loss')
+    smooth_plot(fxd['val_losses'], fmt="-.", label='Fixed Val Loss')
+    smooth_plot(lrnd['val_losses'], fmt="-.", label='Learned Val Loss')
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
-    plt.title('Training Loss Citeseer')
+    plt.title('Loss Cora')
     plt.legend()
     
-    plt.figure()
     
-    smooth_plot(train_accuracies, label='Train Acc')
-    smooth_plot(val_accuracies, label='Val Acc')
+    plt.figure()
+    smooth_plot(fxd['train_accuracies'], label='Fixed Train Accuracy')
+    smooth_plot(lrnd['train_accuracies'], label='Learned Train Accuracy')
+    smooth_plot(fxd['val_accuracies'], fmt="-.", label='Fixed Val Accuracy')
+    smooth_plot(lrnd['val_accuracies'], fmt="-.", label='Learned Val Accuracy')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
-    plt.title('Validation Accuracy Citeseer')
+    plt.title('Accuracy Cora')
     plt.legend()
     
     

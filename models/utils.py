@@ -543,7 +543,7 @@ def sparse_to_tuple(sparse_mx):
     shape = sparse_mx.shape
     return coords, values, shape
 
-def smooth_plot(x, y=None, label='', halflife=10):
+def smooth_plot(x, y=None, fmt="-", label='', halflife=10):
 
     """ 
     Function to plot smoothed x VS y graphs.
@@ -570,11 +570,13 @@ def smooth_plot(x, y=None, label='', halflife=10):
     x_ewm = pd.Series(y_int).ewm(halflife=halflife)
     color = next(plt.gca()._get_lines.prop_cycler)['color']
     if y is None:
-      plt.plot(x_ewm.mean(), label=label, color=color)
+      plt.plot(x_ewm.mean(), fmt, label=label, color=color)
       plt.fill_between(np.arange(x_ewm.mean().shape[0]), x_ewm.mean() + x_ewm.std(), x_ewm.mean() - x_ewm.std(), color=color, alpha=0.3)
     else:
-      plt.plot(x, x_ewm.mean(), label=label, color=color)
+      plt.plot(x, x_ewm.mean(), fmt, label=label, color=color)
       plt.fill_between(x, y_int + x_ewm.std(), y_int - x_ewm.std(), color=color, alpha=0.3)
+
+
 
 
 def del_all_flags(FLAGS):
